@@ -205,8 +205,6 @@
         const highlightText = () => {
           let totalDuration = 0;
           words.forEach((word, index) => {
-            totalDuration +=
-              (word.length * 1000) / parseFloat(speedSelect.value);
             setTimeout(() => {
               textDisplay.innerHTML = '';
               for (let i = 0; i <= index; i++) {
@@ -218,6 +216,8 @@
                 textDisplay.appendChild(span);
               }
             }, totalDuration);
+            totalDuration +=
+              (word.length * 1000) / parseFloat(speedSelect.value);
           });
         };
 
