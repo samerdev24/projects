@@ -203,23 +203,22 @@
         };
 
         const highlightText = () => {
-          const interval = setInterval(() => {
-            if (!isTeacherReading || currentWordIndex >= words.length) {
-              clearInterval(interval);
-              return;
-            }
-
-            textDisplay.innerHTML = '';
-            for (let i = 0; i < words.length; i++) {
-              const span = document.createElement('span');
-              span.textContent = words[i] + ' ';
-              if (i === currentWordIndex) {
-                span.classList.add('speaking');
+          let totalDuration = 0;
+          words.forEach((word, index) => {
+            totalDuration +=
+              (word.length * 1000) / parseFloat(speedSelect.value);
+            setTimeout(() => {
+              textDisplay.innerHTML = '';
+              for (let i = 0; i <= index; i++) {
+                const span = document.createElement('span');
+                span.textContent = words[i] + ' ';
+                if (i === currentWordIndex) {
+                  span.classList.add('speaking');
+                }
+                textDisplay.appendChild(span);
               }
-              textDisplay.appendChild(span);
-            }
-            currentWordIndex++;
-          }, 500 / parseFloat(speedSelect.value)); // Adjust the interval timing based on speech rate
+            }, totalDuration);
+          });
         };
 
         const startRecognition = () => {
