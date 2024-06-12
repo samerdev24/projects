@@ -203,14 +203,21 @@
         };
 
         const highlightText = () => {
-          textDisplay.innerHTML = '';
+          let totalDuration = 0;
           words.forEach((word, index) => {
-            const span = document.createElement('span');
-            span.textContent = word + ' ';
-            if (index === currentWordIndex) {
-              span.classList.add('speaking');
-            }
-            textDisplay.appendChild(span);
+            totalDuration +=
+              (word.length * 1000) / parseFloat(speedSelect.value);
+            setTimeout(() => {
+              textDisplay.innerHTML = '';
+              for (let i = 0; i <= index; i++) {
+                const span = document.createElement('span');
+                span.textContent = words[i] + ' ';
+                if (i === currentWordIndex) {
+                  span.classList.add('speaking');
+                }
+                textDisplay.appendChild(span);
+              }
+            }, totalDuration);
           });
         };
 
