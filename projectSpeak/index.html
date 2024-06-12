@@ -236,6 +236,7 @@
 
           if (spokenText === correctText) {
             textDisplay.classList.add('correct');
+            responsiveVoice.speak('ممتاز', 'Arabic Female');
             micIcon.classList.remove('active');
           } else {
             attempts++;
@@ -285,6 +286,7 @@
           micIcon.classList.remove('active');
           if (spokenText === 'نعم') {
             startRecognition();
+            responsiveVoice.speak('هيا نبدا', 'Arabic Female');
           } else {
             responsiveVoice.speak(
               'حسنًا، أخبرني عندما تكون جاهزًا.',
