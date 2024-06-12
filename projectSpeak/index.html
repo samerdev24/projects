@@ -154,180 +154,171 @@
     </div>
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=H8vDVaHY"></script>
     <script>
-      const textInput = document.getElementById('textInput');
-      const textDisplay = document.getElementById('textDisplay');
-      const startButton = document.getElementById('startButton');
-      const micIcon = document.getElementById('micIcon');
-      let words = [];
-      let currentWordIndex = 0;
-      let isTeacherReading = false;
-      let recognition;
-      let attempts = 0;
+      document.addEventListener('DOMContentLoaded', () => {
+        const textInput = document.getElementById('textInput');
+        const textDisplay = document.getElementById('textDisplay');
+        const startButton = document.getElementById('startButton');
+        const micIcon = document.getElementById('micIcon');
+        let words = [];
+        let currentWordIndex = 0;
+        let isTeacherReading = false;
+        let recognition;
+        let attempts = 0;
 
-      // Set text replacements
-      responsiveVoice.setTextReplacements([
-        {
-          searchvalue: 'human',
-          newvalue: 'robot',
-          collectionvoices: 'Arabic Female',
-        },
-      ]);
-
-      const speakText = (text) => {
-        if (!text.trim()) {
-          alert('يرجى إدخال نص لقراءته');
-          return;
-        }
-
-        words = text.split(' ');
-        currentWordIndex = 0;
-        textDisplay.innerHTML = '';
-        highlightText();
-
-        responsiveVoice.speak(text, 'Arabic Female', {
-          rate: parseFloat(speedSelect.value),
-          onstart: () => {
-            isTeacherReading = true;
+        // Set text replacements
+        responsiveVoice.setTextReplacements([
+          {
+            searchvalue: 'human',
+            newvalue: 'robot',
+            collectionvoices: 'Arabic Female',
           },
-          onend: () => {
-            isTeacherReading = false;
-            console.log('Waiting for child to repeat...');
-            responsiveVoice.speak('هل أنت جاهز للقراءة؟', 'Arabic Female', {
-              rate: parseFloat(speedSelect.value),
-              onend: () => {
-                startReadyCheck();
-              },
-            });
-          },
-        });
-      };
+        ]);
 
-      const highlightText = () => {
-        const interval = setInterval(() => {
-          if (!isTeacherReading || currentWordIndex >= words.length) {
-            clearInterval(interval);
+        const speakText = (text) => {
+          if (!text.trim()) {
+            alert('يرجى إدخال نص لقراءته');
             return;
           }
 
+          words = text.split(' ');
+          currentWordIndex = 0;
           textDisplay.innerHTML = '';
-          for (let i = 0; i < words.length; i++) {
-            const span = document.createElement('span');
-            span.textContent = words[i] + ' ';
-            if (i === currentWordIndex) {
-              span.classList.add('speaking');
-            }
-            textDisplay.appendChild(span);
-          }
-          currentWordIndex++;
-        }, 500 / parseFloat(speedSelect.value)); // Adjust the interval timing based on speech rate
-      };
+          highlightText();
 
-      const startRecognition = () => {
-        recognition = new (window.SpeechRecognition ||
-          window.webkitSpeechRecognition)();
-        recognition.lang = 'ar-SA';
-
-        recognition.onstart = () => {
-          micIcon.classList.add('active');
+          responsiveVoice.speak(text, 'Arabic Female', {
+            rate: parseFloat(speedSelect.value),
+            onstart: () => {
+              isTeacherReading = true;
+            },
+            onend: () => {
+              isTeacherReading = false;
+              responsiveVoice.speak('هل أنت جاهز للقراءة؟', 'Arabic Female', {
+                rate: parseFloat(speedSelect.value),
+                onend: () => {
+                  startReadyCheck();
+                },
+              });
+            },
+          });
         };
 
-        recognition.onresult = (event) => {
-          const spokenText = event.results[0][0].transcript.trim();
-          const correctText = words.join(' ').trim();
+        const highlightText = () => {
+          const interval = setInterval(() => {
+            if (!isTeacherReading || currentWordIndex >= words.length) {
+              clearInterval(interval);
+              return;
+            }
 
-          if (spokenText === correctText) {
-            textDisplay.classList.add('correct');
-            micIcon.classList.remove('active');
-            console.log('Correct!');
-          } else {
-            attempts++;
-            textDisplay.classList.add('incorrect');
-            console.log(`Incorrect! Attempt ${attempts} of 3. Try again.`);
+            textDisplay.innerHTML = '';
+            for (let i = 0; i < words.length; i++) {
+              const span = document.createElement('span');
+              span.textContent = words[i] + ' ';
+              if (i === currentWordIndex) {
+                span.classList.add('speaking');
+              }
+              textDisplay.appendChild(span);
+            }
+            currentWordIndex++;
+          }, 500 / parseFloat(speedSelect.value)); // Adjust the interval timing based on speech rate
+        };
 
-            if (attempts < 3) {
-              responsiveVoice.speak('خطأ! حاول مرة أخرى.', 'Arabic Female', {
-                rate: parseFloat(speedSelect.value),
-                onend: startRecognition,
-              });
-            } else {
+        const startRecognition = () => {
+          recognition = new (window.SpeechRecognition ||
+            window.webkitSpeechRecognition)();
+          recognition.lang = 'ar-SA';
+
+          recognition.onstart = () => {
+            micIcon.classList.add('active');
+          };
+
+          recognition.onresult = (event) => {
+            const spokenText = event.results[0][0].transcript.trim();
+            const correctText = words.join(' ').trim();
+
+            if (spokenText === correctText) {
+              textDisplay.classList.add('correct');
               micIcon.classList.remove('active');
+            } else {
+              attempts++;
+              textDisplay.classList.add('incorrect');
+
+              if (attempts < 3) {
+                responsiveVoice.speak('خطأ! حاول مرة أخرى.', 'Arabic Female', {
+                  rate: parseFloat(speedSelect.value),
+                  onend: startRecognition,
+                });
+              } else {
+                micIcon.classList.remove('active');
+                responsiveVoice.speak(
+                  'لقد وصلت إلى الحد الأقصى من المحاولات. حاول مرة أخرى لاحقًا.',
+                  'Arabic Female'
+                );
+              }
+            }
+          };
+
+          recognition.onend = () => {
+            if (attempts < 3 && !textDisplay.classList.contains('correct')) {
+              recognition.start();
+            }
+          };
+
+          recognition.onerror = (event) => {
+            micIcon.classList.remove('active');
+          };
+
+          recognition.start();
+        };
+
+        const startReadyCheck = () => {
+          const readyRecognition = new (window.SpeechRecognition ||
+            window.webkitSpeechRecognition)();
+          readyRecognition.lang = 'ar-SA';
+
+          readyRecognition.onstart = () => {
+            micIcon.classList.add('active');
+          };
+
+          readyRecognition.onresult = (event) => {
+            const spokenText = event.results[0][0].transcript
+              .trim()
+              .toLowerCase();
+            micIcon.classList.remove('active');
+            if (spokenText === 'نعم') {
+              startRecognition();
+            } else {
               responsiveVoice.speak(
-                'لقد وصلت إلى الحد الأقصى من المحاولات. حاول مرة أخرى لاحقًا.',
+                'حسنًا، أخبرني عندما تكون جاهزًا.',
                 'Arabic Female'
               );
-              console.log('Maximum attempts reached. Please try again later.');
             }
+          };
+
+          readyRecognition.onend = () => {};
+
+          readyRecognition.onerror = (event) => {
+            micIcon.classList.remove('active');
+          };
+
+          readyRecognition.start();
+        };
+
+        startButton.addEventListener('click', () => {
+          const text = textInput.value;
+          if (!text.trim()) return;
+
+          speedSelect = document.getElementById('speedSelect');
+          if (!speedSelect) {
+            return;
           }
-        };
 
-        recognition.onend = () => {
-          if (attempts < 3 && !textDisplay.classList.contains('correct')) {
-            recognition.start();
-          } else {
-            console.log('Recognition ended');
-          }
-        };
+          words = text.split(' ');
+          currentWordIndex = 0;
+          textDisplay.innerHTML = '';
+          textDisplay.classList.remove('correct', 'incorrect');
 
-        recognition.onerror = (event) => {
-          console.error('Recognition error:', event.error);
-          micIcon.classList.remove('active');
-        };
-
-        recognition.start();
-      };
-
-      const startReadyCheck = () => {
-        const readyRecognition = new (window.SpeechRecognition ||
-          window.webkitSpeechRecognition)();
-        readyRecognition.lang = 'ar-SA';
-
-        readyRecognition.onstart = () => {
-          micIcon.classList.add('active');
-        };
-
-        readyRecognition.onresult = (event) => {
-          const spokenText = event.results[0][0].transcript
-            .trim()
-            .toLowerCase();
-          micIcon.classList.remove('active');
-          if (spokenText === 'نعم') {
-            startRecognition();
-          } else {
-            responsiveVoice.speak(
-              'حسنًا، أخبرني عندما تكون جاهزًا.',
-              'Arabic Female'
-            );
-          }
-        };
-
-        readyRecognition.onend = () => {
-          console.log('Ready check ended');
-        };
-
-        readyRecognition.onerror = (event) => {
-          console.error('Ready check error:', event.error);
-          micIcon.classList.remove('active');
-        };
-
-        readyRecognition.start();
-      };
-
-      startButton.addEventListener('click', () => {
-        const text = textInput.value;
-        if (!text.trim()) return;
-
-        speedSelect = document.getElementById('speedSelect');
-        if (!speedSelect) {
-          console.error('speedSelect element not found');
-          return;
-        }
-
-        words = text.split(' ');
-        currentWordIndex = 0;
-        textDisplay.innerHTML = '';
-        textDisplay.classList.remove('correct', 'incorrect');
-
-        speakText(text);
+          speakText(text);
+        });
       });
     </script>
   </body>
