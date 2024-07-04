@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="form">
+      <div class="nav">
+        <div class="tab activeTab" data-target="signUpForm">Sign Up</div>
+        <div class="tab" data-target="signInForm">Sign In</div>
+        <div class="inductor"></div>
+      </div>
+      <div class="containerForm" id="signUpForm">
+        <h2>Sign Up</h2>
+        <form action="#">
+          <div class="input-area">
+            <input type="text" name="name" placeholder="Enter your name" />
+          </div>
+          <div class="input-area">
+            <input type="email" name="email" placeholder="Email" />
+          </div>
+          <div class="input-area">
+            <input type="password" name="password" placeholder="Password" />
+          </div>
+          <button class="cta" type="submit">Sign Up</button>
+        </form>
+      </div>
+      <div class="containerForm hide" id="signInForm">
+        <h2>Sign In</h2>
+        <form action="#">
+          <div class="input-area">
+            <input type="email" name="email" placeholder="Email" />
+          </div>
+          <div class="input-area">
+            <input type="password" name="password" placeholder="Password" />
+          </div>
+          <div class="forgot-YourPassword">Forgot your password?</div>
+          <button class="cta" type="submit">Sign In</button>
+        </form>
+      </div>
+    </div>
+    <script src="./scipt.js"></script>
+  </body>
+</html>
